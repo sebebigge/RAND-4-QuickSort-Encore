@@ -16,14 +16,14 @@ from matplotlib.colors import PowerNorm
 ####################################################################################
 
 """
-Sorts a randomly generated array of given size
+Sorts a list A[p..r] in place using the quicksort algorithm and counts comparisons between pairs of elements
 
 @param {list[int]} A:                   list to sort
 @param {int} p:                         starting index of the subarray to be sorted
 @param {int} r:                         ending index of the subarray to be sorted
 @param {dict} counter:                  dictionary to count comparisons between pairs of elements
 @return {dict[tuple[int,int],int]}:     dictionary with counts of comparisons between pairs
-@return {}
+@return {dict[tuple[int,int],int]}:     updated dictionary with counts of comparisons between pairs
 """
 def quicksort(A: list[int], p: int, r: int, counter: dict[tuple[int,int],int]
               ) -> dict[tuple[int,int],int]:
@@ -80,9 +80,9 @@ def make_counter_dict(size: int) -> dict[tuple[int,int],int]:
 Makes a dictionary to count theoretical expected comparisons between pairs of elements in the array
 
 @param {int} size:                      size of the array to sort
-@return {dict[tuple[int,int],int]}:     dictionary with counts of comparisons between pairs
+@return {dict[tuple[int,int],float]}:   dictionary with expected counts of comparisons between pairs
 """
-def make_expected_counter_dict(size: int) -> dict[tuple[int,int],int]:
+def make_expected_counter_dict(size: int) -> dict[tuple[int,int],float]:
     result = dict()
     for i in range(1, size+1):
         for j in range(i+1, size+1):
@@ -119,7 +119,8 @@ def plot_diff(diff: dict[tuple[int,int], float]) -> None:
 
 # GenAI
 """
-Plots the ratio of observed to expected comparisons for each pair of elements
+Plots the ratio of observed to expected comparisons for each pair of elements based on 
+their distance (j - i)
 
 @param {dict[tuple[int,int],float]} counter_avg:    dictionary with average observed comparisons
 @param {dict[tuple[int,int],float]} counter_exp:    dictionary with expected comparisons
@@ -303,12 +304,13 @@ def test_quicksort(size: int, runs: int) -> dict[tuple[int,int],float]:
     return counter_avg
 
 
+# GenAI: saving to path
 """
 Tests the quicksort function and plots the results
 
 @param {int} size:      size of the array to sort
 @param {int} runs:      number of times to run the test
-@return {None}:         generates three plots: difference, ratio, and observed vs expected
+@return {None}:         generates plots
 """
 def test_main(size: int, runs: int):
     counter_avg = test_quicksort(size, runs)
