@@ -54,7 +54,7 @@ def partition(A: list[int], p: int, r: int, counter: dict) -> tuple[int, dict[tu
 
 
 ####################################################################################
-####################################  TESTS  #######################################
+###################################  HELPERS  ######################################
 ####################################################################################
 
 """
@@ -72,13 +72,39 @@ def make_counter_dict(size: int) -> dict[tuple[int,int],int]:
 
 
 """
+Makes a dictionary to count theoretical expected comparisons between pairs of elements in the array
+
+@param {int} size:                      size of the array to sort
+@return {dict[tuple[int,int],int]}:     dictionary with counts of comparisons between pairs
+"""
+def make_expected_counter_dict(size: int) -> dict[tuple[int,int],int]:
+    result = dict()
+    for i in range(1, size+1):
+        for j in range(i+1, size+1):
+            result[(i,j)] = 2 / (j-i+1)
+    return result
+
+
+####################################################################################
+####################################  PLOTS  #######################################
+####################################################################################
+
+def plot_diff():
+    pass
+
+
+####################################################################################
+####################################  TESTS  #######################################
+####################################################################################
+
+"""
 Tests the quicksort function with a given array size and number of runs
 
 @param {int} size:                      size of the array to sort
 @param {int} runs:                      number of times to run the test
 @return {dict[tuple[int,int],int]}:     dictionary with counts of comparisons between pairs
 """
-def test_quicksort(size: int, runs: int) -> dict[tuple[int,int],int]:
+def test_quicksort(size: int, runs: int) -> dict[tuple[int,int],float]:
     counter = make_counter_dict(size)
     for _ in range(runs):
         A = random.sample(range(1,size+1), size)
@@ -86,3 +112,11 @@ def test_quicksort(size: int, runs: int) -> dict[tuple[int,int],int]:
     counter_avg = {k: v / runs for k, v in counter.items()}
     return counter_avg
 
+
+"""
+"""
+def test_main(size: int, runs: int) -> dict[tuple[int,int],float]:
+    counter_avg = test_quicksort(size, runs)
+    counter_exp = make_expected_counter_dict(size)
+    counter_difference = {k: v_exp - counter_avg[k] for k, v_exp in counter_exp.items()}
+    return counter_difference
