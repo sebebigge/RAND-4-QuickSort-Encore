@@ -236,6 +236,16 @@ def plot_table(counter_avg: dict[tuple[int,int], float], counter_exp: dict[tuple
     plt.show()
 
 
+# GenAI
+"""
+Plots a split table of observed vs expected comparisons for each pair of elements
+
+@param {dict[tuple[int,int],float]} counter_avg:    dictionary with average observed comparisons
+@param {dict[tuple[int,int],float]} counter_exp:    dictionary with expected comparisons
+@param {float} gamma:                               power normalization parameter for color scaling (default: 0.4)
+@return {None}:                                     generates a heatmap table with observed values above the diagonal
+                                                    and expected values below the diagonal
+"""
 def plot_table_split(counter_avg: dict[tuple[int,int], float], counter_exp: dict[tuple[int,int], float],
                      gamma: float = 0.4) -> None:
     size = max(j for _, j in counter_exp)
