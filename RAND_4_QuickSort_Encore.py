@@ -163,7 +163,8 @@ Plots observed vs expected comparisons for each pair of elements
 @return {None}:                                     generates a scatter plot of observed vs expected comparisons
 """
 def plot_observed_vs_expected(counter_avg: dict[tuple[int,int], float], 
-                              counter_exp: dict[tuple[int,int], float]) -> None:
+                              counter_exp: dict[tuple[int,int], float],
+                              save_path: Path | None = None) -> None:
     x = [counter_exp[k] for k in counter_exp]
     y = [counter_avg[k] for k in counter_exp]
     plt.figure(figsize=(6, 6))
@@ -176,7 +177,9 @@ def plot_observed_vs_expected(counter_avg: dict[tuple[int,int], float],
     plt.legend()
     plt.grid(True)
     plt.tight_layout()
-    plt.show()
+    if save_path is not None:
+        plt.savefig(save_path, bbox_inches="tight")
+    #plt.show()
 
 # GenAI
 """
@@ -316,9 +319,10 @@ def test_main(size: int, runs: int):
     print(f"Graphs will be saved in: {output_dir}")
     plot_ratio(counter_avg, counter_exp, runs, output_dir / "ratio.png")
     plot_table_split(counter_avg, counter_exp, save_path=output_dir / "comparison_table.png")
+    plot_observed_vs_expected(counter_avg, counter_exp,
+                              save_path=output_dir / "observed_vs_expected.png")
     # not used but interesting:
     #plot_diff(counter_difference)
-    #plot_observed_vs_expected(counter_avg, counter_exp)
     #plot_table(counter_avg, counter_exp, runs, mode="diff")
 
 
