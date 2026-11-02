@@ -5,6 +5,7 @@
 
 # Imports
 import random
+from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import PowerNorm
@@ -24,7 +25,8 @@ Sorts a randomly generated array of given size
 @return {dict[tuple[int,int],int]}:     dictionary with counts of comparisons between pairs
 @return {}
 """
-def quicksort(A: list[int], p: int, r: int, counter: dict) -> dict[tuple[int,int],int]:
+def quicksort(A: list[int], p: int, r: int, counter: dict[tuple[int,int],int]
+              ) -> dict[tuple[int,int],int]:
     if p < r:
         (q, counter) = partition(A, p, r, counter)
         quicksort(A, p, q - 1, counter)      # recursively sort left side
@@ -41,7 +43,8 @@ Partitions the subarray A[p..r] using Lomuto partitioning
 @param {dict} counter:      dictionary to count comparisons between pairs of elements
 @return {tuple[int, dict[tuple[int,int],int]]}:  index of the pivot after partitioning and updated counter
 """
-def partition(A: list[int], p: int, r: int, counter: dict) -> tuple[int, dict[tuple[int,int],int]]:
+def partition(A: list[int], p: int, r: int, counter: dict[tuple[int,int],int]
+              ) -> tuple[int, dict[tuple[int,int],int]]:
     x = A[r]
     i = p - 1
     for j in range(p,r):
@@ -124,7 +127,7 @@ Plots the ratio of observed to expected comparisons for each pair of elements
 @return {None}:                                     generates a plot of the ratios
 """
 def plot_ratio(counter_avg: dict[tuple[int,int], float], counter_exp: dict[tuple[int,int], float],
-               runs: int | None = None) -> None:
+               runs: int | None = None, save_path: Path | None = None) -> None:
     # Group observed/expected by distance d = j - i
     by_dist = {}
     for (i, j), exp in counter_exp.items():
@@ -146,7 +149,9 @@ def plot_ratio(counter_avg: dict[tuple[int,int], float], counter_exp: dict[tuple
     ax.set_ylabel("observed / expected")
     ax.legend()
     plt.tight_layout()
-    plt.show()
+    if save_path is not None:
+        fig.savefig(save_path, bbox_inches="tight")
+    #plt.show()
 
 
 # GenAI
@@ -242,12 +247,12 @@ Plots a split table of observed vs expected comparisons for each pair of element
 
 @param {dict[tuple[int,int],float]} counter_avg:    dictionary with average observed comparisons
 @param {dict[tuple[int,int],float]} counter_exp:    dictionary with expected comparisons
-@param {float} gamma:                               power normalization parameter for color scaling (default: 0.4)
+@param {float} gamma:                               power normalization parameter for color scaling (default: 0.5)
 @return {None}:                                     generates a heatmap table with observed values above the diagonal
                                                     and expected values below the diagonal
 """
 def plot_table_split(counter_avg: dict[tuple[int,int], float], counter_exp: dict[tuple[int,int], float],
-                     gamma: float = 0.4) -> None:
+                     gamma: float = 0.5, save_path: Path | None = None) -> None:
     size = max(j for _, j in counter_exp)
     M = np.full((size, size), np.nan)
     for (i, j), exp in counter_exp.items():
@@ -270,7 +275,9 @@ def plot_table_split(counter_avg: dict[tuple[int,int], float], counter_exp: dict
     ax.set_xlabel("j (upper) / i (lower)", fontsize=12)
     ax.set_ylabel("i (upper) / j (lower)", fontsize=12)
     plt.tight_layout()
-    plt.show()
+    if save_path is not None:
+        fig.savefig(save_path, bbox_inches="tight")
+    #plt.show()
 
 
 ####################################################################################
@@ -304,12 +311,18 @@ def test_main(size: int, runs: int):
     counter_avg = test_quicksort(size, runs)
     counter_exp = make_expected_counter_dict(size)
     counter_difference = {k: v_exp - counter_avg[k] for k, v_exp in counter_exp.items()}
+    output_dir = Path(f"Graphs/SIZE{size}_RUNS{runs}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    print(f"Graphs will be saved in: {output_dir}")
+    plot_ratio(counter_avg, counter_exp, runs, output_dir / "ratio.png")
+    plot_table_split(counter_avg, counter_exp, save_path=output_dir / "comparison_table.png")
+    # not used but interesting:
     #plot_diff(counter_difference)
-    #plot_ratio(counter_avg,counter_exp,runs)
     #plot_observed_vs_expected(counter_avg, counter_exp)
     #plot_table(counter_avg, counter_exp, runs, mode="diff")
-    #plot_table_split(counter_avg, counter_exp)
 
 
 if __name__ == "__main__":
-    test_main(100,100)
+    for size in [100, 1000, 10000]:
+        for runs in [10, 100, 1000, 10000]:
+            test_main(size, runs)
